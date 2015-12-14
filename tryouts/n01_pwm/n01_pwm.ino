@@ -18,9 +18,12 @@
 // Constants for pin numbers
 const int buttonPin = 2;    // the number of the pushbutton pin
 
-const int ledPin = 9;       // the number of the LED pin
+const int ledPins[] = {9, 10, 11};       // the LED pin with pwd
+const int pinCount = 3;                  // Count of Pin Array
 
 // Variables for button and LED state
+int pin = 0;              // Index var  
+
 int ledState = 0;            // start with dark LEDs
 
 int buttonState;             // the current reading from the input pin
@@ -34,10 +37,14 @@ long debounceDelay = 50;    // the debounce time; increase if the output flicker
 
 void setup() {
   pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-
-  // set initial LED state
-  digitalWrite(ledPin, ledState);
+  for(pin=0;pin<pinCount;pin++) {
+    pinMode(ledPins[pin], OUTPUT);
+    // set initial LED state
+    digitalWrite(ledPins[pin], ledState);
+  }
+  
+  // init Serial connection for debug
+  Serial.begin(9600);
 }
 
 
@@ -66,16 +73,23 @@ void loop() {
       // only toggle the LED if the new button state is HIGH
       if (buttonState == HIGH) {
 
+        Serial.println("Button pressed");
+        
         if (ledState > 0) {
-          ledState = 0;
-          digitalWrite(ledPin, ledState);
+          ledState = false;
+                
+          for(pin=pinCount;pin>0;pin--) {
+             // LED off
+             fadeLedOut(ledPins[pin-1]);
+           }
+          
         } else {
-          for (float i = 1; i <= 255; i = i * 1.3) {
-            // set the LED with fade in to high
-            analogWrite(ledPin, int(i));
-            delay(10);
-          }
-          ledState = 255;
+          ledState = true; 
+
+          for(pin=0;pin<pinCount;pin++) {
+             // LED off
+             fadeLedIn(ledPins[pin]);
+           }
         }
       }
     }
@@ -84,5 +98,27 @@ void loop() {
   // save the reading.  Next time through the loop,
   // it'll be the lastButtonState:
   lastButtonState = reading;
+}
+
+// Function that fade LED in 
+void fadeLedIn(int ledFadePin) {
+  for (float i = 1; i <= 255; i = i * 2.3) {
+     // set the LED with fade in to high
+     analogWrite(ledFadePin, int(i));
+     delay(50);
+  }
+
+  analogWrite(ledFadePin, 255);  
+}
+
+// Function that fade LED out 
+void fadeLedOut(int ledFadePin) {
+  for (float i = 255; i > 0.5; i = i / 2.3) {
+     // set the LED with fade out to low
+     analogWrite(ledFadePin, i);
+     delay(50);
+  }
+
+  analogWrite(ledFadePin, 0);  
 }
 
