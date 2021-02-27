@@ -11,3 +11,4 @@ Here a all project sketches bit by bit
 1.  Use the inbuild PWM outputs to create an feade in effect with 3 LEDs.   
     This first sample is triggered by a simple button.
 2.  Read value from analog brightnesssensor 
+3.  Read in input from top and bottom PIR and light up top or bottom stair LED if PIR Trigger
